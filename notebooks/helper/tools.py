@@ -1,13 +1,15 @@
-# helper/tools.py
-
 from sklearn.cluster import DBSCAN
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from scipy.stats import normaltest
+from scipy.signal import butter, filtfilt, lfilter
+from sklearn.decomposition import PCA
+import copy
 
 
-class Tools:
+############### Outlier detection ####################
+class OutlierDetection:
     def __init__(self):
         pass
 
@@ -72,3 +74,128 @@ class Tools:
                 print(f'{col} is normally distributed (p-value: {p})')
             else:
                 print(f'{col} is not normally distributed (p-value: {p})')
+
+############### Feature engineering ####################
+
+class LowPassFilter:
+    def low_pass_filter(
+        self,
+        data_table,
+        col,
+        sampling_frequency,
+        cutoff_frequency,
+        order=5,
+        phase_shift=True,
+    ):
+        
+        '''
+        Function to apply a low-pass Butterworth filter to a column in a DataFrame.
+        Parameters:
+        - data_table: The DataFrame
+        - col: The column to apply the filter to
+        - sampling_frequency: The sampling frequency of the data
+        - cutoff_frequency: The cutoff frequency for the filter
+        - order: The order of the filter (default: 5)
+        - phase_shift: Whether to apply a phase shift (default: True)
+
+        Returns:
+        - data_table: The DataFrame with the filtered column added
+        '''
+
+        # http://stackoverflow.com/questions/12093594/how-to-implement-band-pass-butterworth-filter-with-scipy-signal-butter
+        # Cutoff frequencies are expressed as the fraction of the Nyquist frequency, which is half the sampling frequency
+        nyq = 0.5 * sampling_frequency
+        cut = cutoff_frequency / nyq
+
+        b, a = butter(order, cut, btype="low", output="ba", analog=False)
+        if phase_shift:
+            data_table[col + "_lowpass"] = filtfilt(b, a, data_table[col])
+        else:
+            data_table[col + "_lowpass"] = lfilter(b, a, data_table[col])
+        return data_table
+
+class PrincipalComponentAnalysis:
+
+    pca = []
+
+    def __init__(self):
+        self.pca = []
+
+    def normalize_dataset(self, data_table, columns):
+
+        '''
+        Function to normalize the selected columns of a DataFrame.
+        Parameters:
+        - data_table: The DataFrame
+        - columns: The columns to normalize
+
+        Returns:
+        - dt_norm: The normalized DataFrame
+
+        Note:
+        - Formula: (x - mean) / (max - min)
+        - x: The original value
+        - mean: The mean of the column
+        - max: The maximum value of the column
+        - min: The minimum value of the column
+
+        This formyla is called Min-Max normalization.
+        '''
+
+        dt_norm = copy.deepcopy(data_table)
+        for col in columns:
+            dt_norm[col] = (data_table[col] - data_table[col].mean()) / (
+                data_table[col].max()
+                - data_table[col].min()
+            )
+        return dt_norm
+
+    def determine_pc_explained_variance(self, data_table, cols):
+
+        '''
+        Function to determine the explained variance of the Principal Components.
+        Parameters:
+        - data_table: The DataFrame
+        - cols: The columns to apply PCA to
+
+        Returns:
+        - pca.explained_variance_ratio_: The explained variance of the Principal Components
+        '''
+
+        # Normalize the data first.
+        dt_norm = self.normalize_dataset(data_table, cols)
+
+        # perform the PCA.
+        self.pca = PCA(n_components=len(cols))
+        self.pca.fit(dt_norm[cols])
+        # And return the explained variances.
+        return self.pca.explained_variance_ratio_
+
+    def apply_pca(self, data_table, cols, number_comp):
+
+        '''
+        Function to apply Principal Component Analysis to a DataFrame.
+        Parameters:
+        - data_table: The DataFrame
+        - cols: The columns to apply PCA to
+        - number_comp: The number of components to extract
+
+        Returns:
+        - data_table: The DataFrame with the new PCA columns added
+        '''
+
+        # Normalize the data first.
+        dt_norm = self.normalize_dataset(data_table, cols)
+
+        # perform the PCA.
+        self.pca = PCA(n_components=number_comp)
+        self.pca.fit(dt_norm[cols])
+
+        # Transform our old values.
+        new_values = self.pca.transform(dt_norm[cols])
+
+        # And add the new ones:
+        for comp in range(0, number_comp):
+            data_table["pca_" + str(comp + 1)] = new_values[:, comp]
+
+        return data_table
