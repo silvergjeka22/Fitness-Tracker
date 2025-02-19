@@ -21,11 +21,18 @@ The project is divided into three main parts:
    ![](./img/outlier.png)
 2. **Feature Engineering**
    - Feature extraction, dimensionality reduction (PCA), clustering (K-means).
+   ```python
+   df_pca = PCA.apply_pca(df_pca, columns, n_components=3)
+   ```
    ![](./img/cluster.png)
 3. **Model Training & Evaluation**
    - Training and testing different machine learning models.
     ![](./img/modelingres.png)
     ![](./img/modlingacc.png)
+
+   
+### Best Model Performance
+The Random Forest model achieved the highest performance with an accuracy of 96%.
 
 
 ### Why does Random Forest perform better?
