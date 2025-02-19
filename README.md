@@ -17,7 +17,7 @@ For more information: [Kaggle Dataset](https://www.kaggle.com/datasets/krishujen
 ## Project Structure
 The project is divided into three main parts:
 1. **Outlier Detection**
-   - Handling outliers using DBScan.
+   - Handling outliers using DBScan and applying interpolation to replace them.
    ![](./img/outlier.png)
 2. **Feature Engineering**
    - Feature extraction, dimensionality reduction (PCA), clustering (K-means).
