@@ -25,7 +25,7 @@ class ClassificationAlgorithms:
                     # temporary selected features
                     temp_selected_features = selected_features + [f]
                     # apply decision tree
-                    pred_y_train, _, _, _ = ca.decision_tree(
+                    pred_y_train, _ = ca.decision_tree(
                         X_train[temp_selected_features], y_train, X_train[temp_selected_features]
                     )
                     # calculate the performance
