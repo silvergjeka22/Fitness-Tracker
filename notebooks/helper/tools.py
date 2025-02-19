@@ -70,49 +70,12 @@ class OutlierDetection:
         """
         for col in columns:
             stat, p = normaltest(data[col])
-            if p > 0.05:
+            if p > 0.15:
                 print(f'{col} is normally distributed (p-value: {p})')
             else:
                 print(f'{col} is not normally distributed (p-value: {p})')
 
 ############### Feature engineering ####################
-
-class LowPassFilter:
-    def low_pass_filter(
-        self,
-        data_table,
-        col,
-        sampling_frequency,
-        cutoff_frequency,
-        order=5,
-        phase_shift=True,
-    ):
-        
-        '''
-        Function to apply a low-pass Butterworth filter to a column in a DataFrame.
-        Parameters:
-        - data_table: The DataFrame
-        - col: The column to apply the filter to
-        - sampling_frequency: The sampling frequency of the data
-        - cutoff_frequency: The cutoff frequency for the filter
-        - order: The order of the filter (default: 5)
-        - phase_shift: Whether to apply a phase shift (default: True)
-
-        Returns:
-        - data_table: The DataFrame with the filtered column added
-        '''
-
-        # http://stackoverflow.com/questions/12093594/how-to-implement-band-pass-butterworth-filter-with-scipy-signal-butter
-        # Cutoff frequencies are expressed as the fraction of the Nyquist frequency, which is half the sampling frequency
-        nyq = 0.5 * sampling_frequency
-        cut = cutoff_frequency / nyq
-
-        b, a = butter(order, cut, btype="low", output="ba", analog=False)
-        if phase_shift:
-            data_table[col + "_lowpass"] = filtfilt(b, a, data_table[col])
-        else:
-            data_table[col + "_lowpass"] = lfilter(b, a, data_table[col])
-        return data_table
 
 class PrincipalComponentAnalysis:
 
