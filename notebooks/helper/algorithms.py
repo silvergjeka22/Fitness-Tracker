@@ -2,14 +2,10 @@ from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn import tree
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score
-import pandas as pd
-import numpy as np
-import copy
 
 
 class ClassificationAlgorithms:
@@ -61,13 +57,11 @@ class ClassificationAlgorithms:
         if gridsearch:
             svm = svm.best_estimator_
 
-        # Predict and return results
+        # Predictions
         pred_train = svm.predict(train_X)
         pred_test = svm.predict(test_X)
-        prob_train = pd.DataFrame(svm.predict_proba(train_X), columns=svm.classes_)
-        prob_test = pd.DataFrame(svm.predict_proba(test_X), columns=svm.classes_)
 
-        return pred_train, pred_test, prob_train, prob_test
+        return pred_train, pred_test
 
 
 
@@ -85,18 +79,11 @@ class ClassificationAlgorithms:
         if gridsearch:
             svm = svm.best_estimator_
 
-        # Predict and return results
-        distance_train = 1 / (1 + np.exp(svm.decision_function(train_X)))
-        distance_test = 1 / (1 + np.exp(svm.decision_function(test_X)))
-        prob_train = distance_train / distance_train.sum(axis=1)[:, None]
-        prob_test = distance_test / distance_test.sum(axis=1)[:, None]
-
+        # Predictions
         pred_train = svm.predict(train_X)
         pred_test = svm.predict(test_X)
-        prob_train_df = pd.DataFrame(prob_train, columns=svm.classes_)
-        prob_test_df = pd.DataFrame(prob_test, columns=svm.classes_)
 
-        return pred_train, pred_test, prob_train_df, prob_test_df
+        return pred_train, pred_test
 
     def k_nearest_neighbor(self, train_X, train_y, test_X, n_neighbors=5, gridsearch=True):
         # GridSearchCV tuning
@@ -112,15 +99,11 @@ class ClassificationAlgorithms:
         if gridsearch:
             knn = knn.best_estimator_
 
-        # Predict and return results
-        prob_train = knn.predict_proba(train_X)
-        prob_test = knn.predict_proba(test_X)
+        # Predictions
         pred_train = knn.predict(train_X)
         pred_test = knn.predict(test_X)
-        prob_train_df = pd.DataFrame(prob_train, columns=knn.classes_)
-        prob_test_df = pd.DataFrame(prob_test, columns=knn.classes_)
 
-        return pred_train, pred_test, prob_train_df, prob_test_df
+        return pred_train, pred_test
 
 
     def decision_tree(self, train_X, train_y, test_X, min_samples_leaf=50, criterion="gini", gridsearch=True):
@@ -141,30 +124,22 @@ class ClassificationAlgorithms:
         if gridsearch:
             dtree = dtree.best_estimator_
 
-        # Predict and return results
-        prob_train = dtree.predict_proba(train_X)
-        prob_test = dtree.predict_proba(test_X)
+        # Predictions
         pred_train = dtree.predict(train_X)
         pred_test = dtree.predict(test_X)
-        prob_train_df = pd.DataFrame(prob_train, columns=dtree.classes_)
-        prob_test_df = pd.DataFrame(prob_test, columns=dtree.classes_)
 
-        return pred_train, pred_test, prob_train_df, prob_test_df
+        return pred_train, pred_test
 
     def naive_bayes(self, train_X, train_y, test_X):
         # Create and fit the model
         nb = GaussianNB()
         nb.fit(train_X, train_y)
 
-        # Predict and return results
-        prob_train = nb.predict_proba(train_X)
-        prob_test = nb.predict_proba(test_X)
+        # Predictions
         pred_train = nb.predict(train_X)
         pred_test = nb.predict(test_X)
-        prob_train_df = pd.DataFrame(prob_train, columns=nb.classes_)
-        prob_test_df = pd.DataFrame(prob_test, columns=nb.classes_)
-
-        return pred_train, pred_test, prob_train_df, prob_test_df
+        
+        return pred_train, pred_test
 
     def random_forest(self, train_X, train_y, test_X, n_estimators=10, min_samples_leaf=5, criterion="gini", gridsearch=True):
         # GridSearchCV tuning
@@ -188,12 +163,9 @@ class ClassificationAlgorithms:
         if gridsearch:
             rf = rf.best_estimator_
 
-        # Predict and return results
-        prob_train = rf.predict_proba(train_X)
-        prob_test = rf.predict_proba(test_X)
+        # Predictions   
         pred_train = rf.predict(train_X)
         pred_test = rf.predict(test_X)
-        prob_train_df = pd.DataFrame(prob_train, columns=rf.classes_)
-        prob_test_df = pd.DataFrame(prob_test, columns=rf.classes_)
+      
 
-        return pred_train, pred_test, prob_train_df, prob_test_df
+        return pred_train, pred_test
