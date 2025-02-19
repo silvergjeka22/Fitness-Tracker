@@ -21,12 +21,10 @@ The project is divided into three main parts:
    ![](./img/outlier.png)
 2. **Feature Engineering**
    - Feature extraction, dimensionality reduction (PCA), clustering (K-means).
-   - PCA:
    ```python
    df_pca = PCA.apply_pca(df_pca, columns, n_components=3)
    ```
-   - CLUSTER:
-  ```python
+   ```python
    kmeans = KMeans(n_clusters=5, n_init=20, random_state=0)
    ```
    ![](./img/cluster.png)
