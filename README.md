@@ -40,4 +40,12 @@ The project is divided into three main parts:
 - **Feature Transformation**: Using Fast Fourier Transform (FFT) to convert time-based data into frequency-based data, helping the model detect patterns and improve predictions.
 
 
-## How to run the 
+## Run the Project
+1. **Activate the Conda environment:**  
+   ```bash
+   conda activate your_env_name
+   ```
+2. **Install the required dependencies:**  
+   ```bash
+   pip install -r requirements.txt
+   ```
