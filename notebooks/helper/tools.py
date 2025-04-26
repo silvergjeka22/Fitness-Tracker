@@ -6,6 +6,7 @@ from scipy.stats import normaltest
 from scipy.signal import butter, filtfilt, lfilter
 from sklearn.decomposition import PCA
 import copy
+from sklearn.metrics import silhouette_score
 
 
 ############### Outlier detection ####################
@@ -14,36 +15,53 @@ class OutlierDetection:
         pass
 
     def tune_dbscan(self, df, outliers_cols, eps_range=(0.1, 2.0, 0.1), min_samples_range=(5, 20)):
-        # Standard scale the data
         scaler = StandardScaler()
         df_scaled = df.copy()
         df_scaled[outliers_cols] = scaler.fit_transform(df[outliers_cols])
         
         best_eps = None
         best_min_samples = None
-        min_outliers = float('inf')
+        best_score = -1  # Silhouette score
+
+        total_steps = len(np.arange(eps_range[0], eps_range[1], eps_range[2])) * (min_samples_range[1] - min_samples_range[0] + 1)
+        step = 1
         
-        # it starts form 0.1 to 2.0 with 0.1 step
-        for eps in np.arange(eps_range[0], eps_range[1], eps_range[2]): 
-            # it starts from 5 to 20
-            for min_samples in range(min_samples_range[0], min_samples_range[1] + 1): # +1 to include the last value
-                # Apply DBSCAN
+        print(f"Starting DBSCAN tuning: {total_steps} total combinations to check...\n")
+        for eps in np.arange(eps_range[0], eps_range[1], eps_range[2]):
+            print(f"Checking eps = {eps:.2f}")
+            for min_samples in range(min_samples_range[0], min_samples_range[1] + 1):
+                print(f"  Step {step}/{total_steps}: eps={eps:.2f}, min_samples={min_samples}", end=" --> ")
                 dbscan = DBSCAN(eps=eps, min_samples=min_samples)
-                outlier_labels = dbscan.fit_predict(df_scaled[outliers_cols])
+                labels = dbscan.fit_predict(df_scaled[outliers_cols])
 
-                # the number of outliers
-                num_outliers = (outlier_labels == -1).sum()
+                n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+                n_outliers = (labels == -1).sum()
+                n_points = len(labels)
 
-                if num_outliers < min_outliers:
-                    min_outliers = num_outliers
+                if n_clusters > 1:  # for >1 clusters
+                    try:
+                        score = silhouette_score(df_scaled[outliers_cols][labels != -1], labels[labels != -1])
+                    except:
+                        score = -1
+                else:
+                    score = -1
+
+                print(f"Clusters: {n_clusters}, Outliers: {n_outliers}, Silhouette Score: {score:.4f}")
+
+                # Optional: Only accept if outliers are less than 10%
+                if score > best_score and (n_outliers / n_points) < 0.1:
+                    print(f"    New best! Silhouette Score {score:.4f}")
+                    best_score = score
                     best_eps = eps
                     best_min_samples = min_samples
 
-        # Display the results
-        print(f"Best DBSCAN parameters: eps = {best_eps}, min_samples = {best_min_samples}")
-        print(f"Number of outliers with these parameters: {min_outliers}")
+                step += 1
+
+        print(f"\nBest DBSCAN parameters: eps = {best_eps}, min_samples = {best_min_samples}")
+        print(f"Best silhouette score: {best_score:.4f}")
 
         return best_eps, best_min_samples, df_scaled
+
 
     def check_normal_distribution(self, data, columns):
         for col in columns:
