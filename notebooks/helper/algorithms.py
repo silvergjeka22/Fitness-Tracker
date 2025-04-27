@@ -53,7 +53,7 @@ class ClassificationAlgorithms:
         # Fit the model
         svm.fit(train_X, train_y)
 
-        # use the best estimator
+        # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
 
@@ -75,7 +75,7 @@ class ClassificationAlgorithms:
         # Fit the model
         svm.fit(train_X, train_y)
 
-        # use the best estimator
+        # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
 
@@ -95,7 +95,7 @@ class ClassificationAlgorithms:
         # Fit the model
         knn.fit(train_X, train_y)
 
-        # use the best estimator
+        # use the best hyperparameters
         if gridsearch:
             knn = knn.best_estimator_
 
@@ -120,7 +120,7 @@ class ClassificationAlgorithms:
         # Fit the model
         dtree.fit(train_X, train_y)
 
-        # use the best estimator
+        # use the best hyperparameters
         if gridsearch:
             dtree = dtree.best_estimator_
 
@@ -159,7 +159,7 @@ class ClassificationAlgorithms:
         # Fit the model
         rf.fit(train_X, train_y)
 
-        # use the best estimator
+        # use the best hyperparameters
         if gridsearch:
             rf = rf.best_estimator_
 
