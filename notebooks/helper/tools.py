@@ -132,7 +132,7 @@ class LowPassFilter:
 
 ###### Fourier transform ######
 class FourierTransformation:
-        def find_fft_transformation(self, data):
+        def find_fft_transformation(self, data, sampling_rate):
             transformation = np.fft.rfft(data)
             return transformation.real, transformation.imag
 
