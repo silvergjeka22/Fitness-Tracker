@@ -119,3 +119,49 @@ class PrincipalComponentAnalysis:
             data_table["pca_" + str(comp + 1)] = new_values[:, comp]
 
         return data_table
+
+###### Filtering functions ######
+class LowPassFilter:
+        def low_pass_filter(self, data_table, col, sampling_frequency, cutoff_frequency, order=5, phase_shift=True):
+            nyquist = 0.5 * sampling_frequency
+            cutoff_norm = cutoff_frequency / nyquist
+            b, a = butter(order, cutoff_norm, btype="low")
+            filtered = filtfilt(b, a, data_table[col]) if phase_shift else lfilter(b, a, data_table[col])
+            data_table[col + "_lowpass"] = filtered
+            return data_table
+
+###### Fourier transform ######
+class FourierTransformation:
+        def find_fft_transformation(self, data):
+            transformation = np.fft.rfft(data)
+            return transformation.real, transformation.imag
+
+        def abstract_frequency(self, data_table, cols, window_size, sampling_rate):
+            freqs = np.round(np.fft.rfftfreq(window_size) * sampling_rate, 3)
+
+            for col in cols:
+                for freq in freqs:
+                    data_table[f"{col}_freq_{freq}_Hz_ws_{window_size}"] = np.nan
+                data_table[f"{col}_max_freq"] = np.nan
+                data_table[f"{col}_freq_weighted"] = np.nan
+                data_table[f"{col}_pse"] = np.nan
+
+            for i in range(window_size, len(data_table)):
+                for col in cols:
+                    segment = data_table[col].iloc[i - window_size: i + 1]
+                    real_ampl, _ = self.find_fft_transformation(segment, sampling_rate)
+
+                    for j, freq in enumerate(freqs):
+                        data_table.loc[i, f"{col}_freq_{freq}_Hz_ws_{window_size}"] = real_ampl[j]
+
+                    max_freq = freqs[np.argmax(real_ampl)]
+                    weighted_freq = np.sum(freqs * real_ampl) / np.sum(real_ampl)
+                    psd = real_ampl ** 2 / len(real_ampl)
+                    psd_pdf = psd / np.sum(psd)
+                    pse = -np.sum(np.log(psd_pdf) * psd_pdf)
+
+                    data_table.loc[i, f"{col}_max_freq"] = max_freq
+                    data_table.loc[i, f"{col}_freq_weighted"] = weighted_freq
+                    data_table.loc[i, f"{col}_pse"] = pse
+
+            return data_table
