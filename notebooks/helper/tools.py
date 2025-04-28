@@ -130,7 +130,7 @@ class LowPassFilter:
             data_table[col + "_lowpass"] = filtered
             return data_table
         
-
+##### Temporal abstraction functions ####
 class MeanTemporalAbstraction:
 
     def abstract_mean(self, data_table, cols, window_size):
