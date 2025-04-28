@@ -11,35 +11,46 @@ from sklearn.metrics import accuracy_score
 class ClassificationAlgorithms:
 
     def forward_selection(self, max_features, X_train, y_train):
-    
-        selected_features = []
-        ordered_scores = []
-        ca = ClassificationAlgorithms()
+            selected_features = []  # List to store the selected features
+            ordered_scores = []  # List to store the performance scores
+            ca = ClassificationAlgorithms()  # Create instance of classification algorithms
 
-        for i in range(max_features):
-            best_perf = 0 # best performance
-            best_feature = None
+            print("Starting forward selection...")
 
-            for f in X_train.columns:
-                if f not in selected_features:
-                    # temporary selected features
-                    temp_selected_features = selected_features + [f]
-                    # apply decision tree
-                    pred_y_train, _ = ca.decision_tree(
-                        X_train[temp_selected_features], y_train, X_train[temp_selected_features]
-                    )
-                    # calculate the performance
-                    perf = accuracy_score(y_train, pred_y_train)
-                    
-                    if perf > best_perf:
-                        best_perf = perf
-                        best_feature = f # update the best feature
+            for i in range(max_features):
+                best_perf = 0  # Best performance score for the current iteration
+                best_feature = None  # Variable to hold the best feature for the current iteration
 
-            # append the results
-            selected_features.append(best_feature)
-            ordered_scores.append(best_perf)
+                print(f"Selecting feature {i + 1}/{max_features}...")
 
-        return selected_features, ordered_scores
+                for f in X_train.columns:
+                    if f not in selected_features:
+                        # Temporary list of selected features
+                        temp_selected_features = selected_features + [f]
+                        
+                        # Apply decision tree with the temporary selected features
+                        pred_y_train, _ = ca.decision_tree(
+                            X_train[temp_selected_features], y_train, X_train[temp_selected_features]
+                        )
+                        
+                        # Calculate the performance of the model (accuracy)
+                        perf = accuracy_score(y_train, pred_y_train)
+
+                        # Update the best feature if performance improves
+                        if perf > best_perf:
+                            best_perf = perf
+                            best_feature = f  # Update the best feature
+
+                # Append the best feature and its performance to the results
+                selected_features.append(best_feature)
+                ordered_scores.append(best_perf)
+
+                # Print selected features after each set is finished
+                print(f"After selecting feature {i + 1}/{max_features}, selected features: {selected_features}")
+
+            print("\nForward selection complete.")
+            print(f"Final selected features: {selected_features}")
+            return selected_features, ordered_scores
 
     
     def svm_with_kernel(self, train_X, train_y, test_X, kernel="rbf", C=1, gamma=1e-3, gridsearch=True):
