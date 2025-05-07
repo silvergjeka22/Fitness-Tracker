@@ -48,8 +48,8 @@ class OutlierDetection:
 
                 print(f"Clusters: {n_clusters}, Outliers: {n_outliers}, Silhouette Score: {score:.4f}")
 
-                # Optional: Only accept if outliers are less than 10%
-                if score > best_score and (n_outliers / n_points) < 0.1:
+                # Accept if outliers are less than 20%
+                if score > best_score and (n_outliers / n_points) < 0.2:
                     print(f"    New best! Silhouette Score {score:.4f}")
                     best_score = score
                     best_eps = eps

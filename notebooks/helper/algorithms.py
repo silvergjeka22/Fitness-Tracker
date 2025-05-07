@@ -4,6 +4,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import accuracy_score
 
@@ -180,3 +181,25 @@ class ClassificationAlgorithms:
       
 
         return pred_train, pred_test
+    
+    def logistic_regression(self, train_X, train_y, test_X, gridsearch=True):
+        if gridsearch:
+            logreg = GridSearchCV(
+                LogisticRegression(solver='liblinear'),
+                {'C': [0.1, 1, 10]},
+                cv=5, scoring='accuracy'
+            )
+        else:
+            logreg = LogisticRegression(solver='liblinear', C=1)
+
+        logreg.fit(train_X, train_y)
+
+        if gridsearch:
+            logreg = logreg.best_estimator_
+
+        pred_train = logreg.predict(train_X)
+        pred_test = logreg.predict(test_X)
+        return pred_train, pred_test
+
+    
+
