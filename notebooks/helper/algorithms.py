@@ -30,7 +30,7 @@ class ClassificationAlgorithms:
                         temp_selected_features = selected_features + [f]
                         
                         # Apply decision tree with the temporary selected features
-                        pred_y_train, _ = ca.decision_tree(
+                        pred_y_train, _, _ = ca.decision_tree(
                             X_train[temp_selected_features], y_train, X_train[temp_selected_features]
                         )
                         
@@ -68,6 +68,7 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
+            print(f"{' ' * 25}Best parameters: {svm.get_params()}")
 
         # Predictions
         pred_train = svm.predict(train_X)
@@ -90,6 +91,7 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
+            print(f"{' ' * 25}Best parameters: {svm.get_params()}")
 
         # Predictions
         pred_train = svm.predict(train_X)
@@ -110,6 +112,7 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             knn = knn.best_estimator_
+            print(f"{' ' * 25}Best parameters: {knn.get_params()}")
 
         # Predictions
         pred_train = knn.predict(train_X)
@@ -140,7 +143,7 @@ class ClassificationAlgorithms:
         pred_train = dtree.predict(train_X)
         pred_test = dtree.predict(test_X)
 
-        return pred_train, pred_test
+        return pred_train, pred_test, dtree
 
     def naive_bayes(self, train_X, train_y, test_X):
         # Create and fit the model
@@ -174,6 +177,7 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             rf = rf.best_estimator_
+            print(f"{' ' * 25}Best parameters: {rf.get_params()}")        
 
         # Predictions   
         pred_train = rf.predict(train_X)
@@ -196,6 +200,7 @@ class ClassificationAlgorithms:
 
         if gridsearch:
             logreg = logreg.best_estimator_
+            print(f"{' ' * 25}Best parameters: {logreg.get_params()}")
 
         pred_train = logreg.predict(train_X)
         pred_test = logreg.predict(test_X)
