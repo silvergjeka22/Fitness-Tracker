@@ -64,11 +64,7 @@ Example Visualization:
 
 ## How to Run the Project
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/fitness-tracker.git
-   cd fitness-tracker
-   ```
+1. **Clone the repository**.
 
 2. **Set up the environment**:
    If using Conda:
