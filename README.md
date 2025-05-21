@@ -1,61 +1,88 @@
-# Fitness-Tracker
+# Fitness Tracker – Activity Recognition Using Sensor Data
 
 ## Introduction
-Fitness Tracker is a time series project that focuses on activity recognition. It collects real-time data while participants perform different gym exercises. 
-The goal of the project is to build a machine learning model capable of recognizing and predicting which exercise a participant is performing based on the captured data.
+**Fitness Tracker** is a machine learning project for human activity recognition using time series sensor data. It uses accelerometer and gyroscope data collected during various gym exercises to train models that can accurately classify the type of exercise being performed.
 
-## Sensors
-- **Accelerometer**: Tracks body movements during exercises. It captures data in three directions: X, Y, and Z axes.
-- **Gyroscope**: Measures the rotation and turning movements of the body, helping to understand how fast and in which direction the body is rotating.
+This project demonstrates the full workflow: from data preprocessing and feature extraction to model training, evaluation, and performance comparison.
+
+## Sensors Used
+- **Accelerometer**: Measures body movement across the X, Y, and Z axes.
+- **Gyroscope**: Captures rotational motion and orientation along three axes.
+
+These sensors work together to capture a detailed picture of body motion during exercise.
 
 ## Dataset
-This dataset is available on Kaggle and contains accelerometer and gyroscope data collected from participants performing various gym exercises in real time. 
-The data includes measurements from different sensors along the X, Y, and Z axes, recording both movement and rotational data. It also includes information about the exercise type, intensity, and the participant performing the exercise.
+The dataset used is publicly available on Kaggle and includes labeled sensor data from multiple gym exercises. It contains:
+- 3-axis accelerometer data
+- 3-axis gyroscope data
+- Labels for different exercises
+- Participant and intensity information
 
-For more information: [Kaggle Dataset](https://www.kaggle.com/datasets/krishujeniya/fitness-tracker-accelerometer-and-gyroscope-data)
+**Dataset Link**: [Kaggle Dataset](https://www.kaggle.com/datasets/krishujeniya/fitness-tracker-accelerometer-and-gyroscope-data)
 
-## Project Structure
-The project is divided into three main parts:
-1. **Outlier Detection**
-   - Handling outliers using DBScan and applying interpolation to replace them.
-   ![](./img/outlier.png)
-2. **Feature Engineering**
-   - Feature extraction, dimensionality reduction (PCA), clustering (K-means).
-   ```python
-   df_pca = PCA.apply_pca(df_pca, columns, n_components=3)
-   ```
-   ```python
-   kmeans = KMeans(n_clusters=5, n_init=20, random_state=0)
-   ```
-   ![](./img/cluster.png)
-3. **Model Training & Evaluation**
-   - Training and testing different machine learning models.
-    ![](./img/modelingres.png)
-    ![](./img/modlingacc.png)
+## Project Workflow
 
-   
-### Best Model Performance
-The Random Forest model achieved the highest performance with an accuracy of 96%.
+### 1. Outlier Detection
+- DBScan clustering is used to detect outliers in the sensor data.
+- Detected outliers are replaced using interpolation for data smoothing.
 
+Example Visualization:  
+![](./img/intrapolation.png)
 
-### Why does Random Forest perform better?
-- Uses multiple decision trees, improving accuracy and reducing errors.
-- Works well even if the sensor data has noise or fluctuations.
-- Automatically selects the most relevant data for predictions.
-- Does not require special data scaling or transformation.
-- Prevents overfitting and handles complex movement patterns effectively.
+### 2. Feature Engineering
+- Extracted statistical features such as mean, standard deviation, magnitude, etc.
+- Applied Principal Component Analysis (PCA) to reduce dimensionality.
+- Performed K-means clustering for visual inspection of patterns.
 
-## Improvements
-- **Noise Reduction**: Applying a low-pass filter to remove noise from the accelerometer and gyroscope data.
-- **Feature Transformation**: Using Fast Fourier Transform (FFT) to convert time-based data into frequency-based data, helping the model detect patterns and improve predictions.
+Example Code:
+```python
+df_pca = PCA.apply_pca(df_pca, columns, n_components=3)
 
+kmeans = KMeans(n_clusters=5, n_init=20, random_state=0)
+```
 
-## Run the Project
-1. **Activate the Conda environment:**  
+Example Visualization:  
+![](./img/clustering.png)
+
+### 3. Model Training & Evaluation
+- Trained and compared multiple machine learning models:
+  - Random Forest
+  - Decision Tree
+  - K-Nearest Neighbors
+  - Logistic Regression
+  - Naive Bayes
+  - Support Vector Machine (Linear)
+
+### Best Model: Random Forest
+- Achieved the highest accuracy of **98%**
+- Performs well with noisy sensor data
+- Automatically selects important features
+- Handles complex and overlapping motion patterns better than simpler models
+
+## Potential Improvements
+- **Noise Filtering**: Applied low-pass filters to smooth raw sensor signals.
+
+## How to Run the Project
+
+1. **Clone the repository**:
    ```bash
-   conda activate your_env_name
+   git clone https://github.com/yourusername/fitness-tracker.git
+   cd fitness-tracker
    ```
-2. **Install the required dependencies:**  
+
+2. **Set up the environment**:
+   If using Conda:
+   ```bash
+   conda create -n fitness-env python=3.10
+   conda activate fitness-env
+   ```
+
+3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
+   ```
+
+4. **Run the notebook or script**:
+   ```bash
+   jupyter notebook
    ```
