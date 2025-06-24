@@ -39,10 +39,7 @@ class OutlierDetection:
                 n_points = len(labels)
 
                 if n_clusters > 1:  # for >1 clusters
-                    try:
-                        score = silhouette_score(df_scaled[outliers_cols][labels != -1], labels[labels != -1])
-                    except:
-                        score = -1
+                    score = silhouette_score(df_scaled[outliers_cols][labels != -1], labels[labels != -1])
                 else:
                     score = -1
 

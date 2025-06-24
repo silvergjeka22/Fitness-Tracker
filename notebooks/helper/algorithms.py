@@ -53,35 +53,14 @@ class ClassificationAlgorithms:
             print(f"Final selected features: {selected_features}")
             return selected_features, ordered_scores
 
-    
-    def svm_with_kernel(self, train_X, train_y, test_X, kernel="rbf", C=1, gamma=1e-3, gridsearch=True):
-        
-        # using GridSearchCV tuning
-        if gridsearch:
-            svm = GridSearchCV(SVC(probability=True), {"kernel": ["rbf", "poly"], "gamma": [1e-3, 1e-4], "C": [1, 10, 100]}, cv=5, scoring="accuracy")
-        else:
-            svm = SVC(C=C, kernel=kernel, gamma=gamma, probability=True)
-        
-        # Fit the model
-        svm.fit(train_X, train_y)
-
-        # use the best hyperparameters
-        if gridsearch:
-            svm = svm.best_estimator_
-            print(f"{' ' * 25}Best parameters: {svm.get_params()}")
-
-        # Predictions
-        pred_train = svm.predict(train_X)
-        pred_test = svm.predict(test_X)
-
-        return pred_train, pred_test
-
-
 
     def svm_without_kernel(self, train_X, train_y, test_X, C=1, tol=1e-3, max_iter=1000, gridsearch=True):
         # GridSearchCV tuning
         if gridsearch:
-            svm = GridSearchCV(LinearSVC(), {"max_iter": [1000, 2000], "tol": [1e-3, 1e-4], "C": [1, 10, 100]}, cv=5, scoring="accuracy")
+            svm = GridSearchCV(LinearSVC(), {"max_iter": [1000, 2000],
+                                              "tol": [1e-3, 1e-4],
+                                              "C": [1, 10, 100]},
+                                              cv=5, scoring="accuracy")
         else:
             svm = LinearSVC(C=C, tol=tol, max_iter=max_iter)
 
@@ -91,18 +70,19 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
-            print(f"{' ' * 25}Best parameters: {svm.get_params()}")
+            print(f"{' ' * 15}Best parameters: {svm.get_params()}")
 
         # Predictions
         pred_train = svm.predict(train_X)
         pred_test = svm.predict(test_X)
 
-        return pred_train, pred_test
+        return pred_train, pred_test, svm
 
-    def k_nearest_neighbor(self, train_X, train_y, test_X, n_neighbors=5, gridsearch=True):
+    def k_nearest_neighbor(self, train_X, train_y, test_X, n_neighbors=10, gridsearch=True):
         # GridSearchCV tuning
         if gridsearch:
-            knn = GridSearchCV(KNeighborsClassifier(), {"n_neighbors": [1, 2, 5, 10]}, cv=5, scoring="accuracy")
+            knn = GridSearchCV(KNeighborsClassifier(), {"n_neighbors": [1, 5, 10, 15, 20, 25]},
+                                                         cv=5, scoring="accuracy")
         else:
             knn = KNeighborsClassifier(n_neighbors=n_neighbors)
 
@@ -112,13 +92,13 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             knn = knn.best_estimator_
-            print(f"{' ' * 25}Best parameters: {knn.get_params()}")
+            print(f"{' ' * 15}Best parameters: {knn.get_params()}")
 
         # Predictions
         pred_train = knn.predict(train_X)
         pred_test = knn.predict(test_X)
 
-        return pred_train, pred_test
+        return pred_train, pred_test, knn
 
 
     def decision_tree(self, train_X, train_y, test_X, min_samples_leaf=50, criterion="gini", gridsearch=True):
@@ -154,7 +134,7 @@ class ClassificationAlgorithms:
         pred_train = nb.predict(train_X)
         pred_test = nb.predict(test_X)
         
-        return pred_train, pred_test
+        return pred_train, pred_test, nb
 
     def random_forest(self, train_X, train_y, test_X, n_estimators=10, min_samples_leaf=5, criterion="gini", gridsearch=True):
         # GridSearchCV tuning
@@ -177,14 +157,13 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             rf = rf.best_estimator_
-            print(f"{' ' * 25}Best parameters: {rf.get_params()}")        
+            print(f"{' ' * 15}Best parameters: {rf.get_params()}")        
 
         # Predictions   
         pred_train = rf.predict(train_X)
         pred_test = rf.predict(test_X)
       
-
-        return pred_train, pred_test
+        return pred_train, pred_test, rf
     
     def logistic_regression(self, train_X, train_y, test_X, gridsearch=True):
         if gridsearch:
@@ -200,11 +179,9 @@ class ClassificationAlgorithms:
 
         if gridsearch:
             logreg = logreg.best_estimator_
-            print(f"{' ' * 25}Best parameters: {logreg.get_params()}")
+            print(f"{' ' * 15}Best parameters: {logreg.get_params()}")
 
         pred_train = logreg.predict(train_X)
         pred_test = logreg.predict(test_X)
-        return pred_train, pred_test
-
-    
-
+        
+        return pred_train, pred_test, logreg
