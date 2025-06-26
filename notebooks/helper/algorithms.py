@@ -81,21 +81,24 @@ class ClassificationAlgorithms:
         return pred_train, pred_test, svm
 
 
+
     def k_nearest_neighbor(self, train_X, train_y, val_X, val_y, gridsearch=True):
         if gridsearch:
+            # GridSearchCV
             param_grid = {"n_neighbors": [5, 10, 15, 20, 25, 30, 31, 35, 40]}
-            grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5, scoring="accuracy")
+            grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv=5, scoring="accuracy", return_train_score=True)
             grid.fit(train_X, train_y)
 
+            # Select the best model
+            best_gap = float("inf")
             best_k = None
             best_model = None
-            best_gap = float("inf")
-            best_pred_train = None
-            best_pred_val = None
 
-            for i in range(len(grid.cv_results_["param_n_neighbors"])):
+            for i in range(len(grid.cv_results_["params"])):
                 k = grid.cv_results_["param_n_neighbors"][i]
-                model = KNeighborsClassifier(n_neighbors=k).fit(train_X, train_y)
+                model = KNeighborsClassifier(n_neighbors=k)
+                model.fit(train_X, train_y)
+
                 pred_train = model.predict(train_X)
                 pred_val = model.predict(val_X)
 
@@ -107,18 +110,20 @@ class ClassificationAlgorithms:
                     best_gap = gap
                     best_k = k
                     best_model = model
-                    best_pred_train = pred_train
-                    best_pred_val = pred_val
 
             if best_model is not None:
                 print(f"Best k: {best_k}")
-                return best_pred_train, best_pred_val, best_model
+                pred_train = best_model.predict(train_X)
+                pred_val = best_model.predict(val_X)
+                return pred_train, pred_val, best_model
 
-            fallback = KNeighborsClassifier(n_neighbors=10).fit(train_X, train_y)
-            return fallback.predict(train_X), fallback.predict(val_X), fallback
+        # no gridsearch
+        model = KNeighborsClassifier(n_neighbors=10)
+        model.fit(train_X, train_y)
+        pred_train = model.predict(train_X)
+        pred_val = model.predict(val_X)
+        return pred_train, pred_val, model
 
-        knn = KNeighborsClassifier(n_neighbors=10).fit(train_X, train_y)
-        return knn.predict(train_X), knn.predict(val_X), knn
 
 
     def decision_tree(self, train_X, train_y, test_X, min_samples_leaf=50, criterion="gini", gridsearch=True):
@@ -126,7 +131,7 @@ class ClassificationAlgorithms:
         if gridsearch:
             dtree = GridSearchCV(
                 DecisionTreeClassifier(),
-                {"min_samples_leaf": [2, 10, 50, 100, 200], "criterion": ["gini", "entropy"]},
+                {"min_samples_leaf": [35, 40, 45, 50, 55], "criterion": ["gini", "entropy"]},
                 cv=5, scoring="accuracy"
             )
         else:
@@ -138,8 +143,6 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             dtree = dtree.best_estimator_
-            print(f"Best min_samples_leaf: {dtree.get_params()['min_samples_leaf']}")
-            print(f"Best criterion: {dtree.get_params()['criterion']}")
 
         # Predictions
         pred_train = dtree.predict(train_X)
@@ -193,7 +196,7 @@ class ClassificationAlgorithms:
         if gridsearch:
             logreg = GridSearchCV(
                 LogisticRegression(solver='liblinear'),
-                {'C': [0.1, 1, 5, 10]},
+                {'C': [0.1, 1, 5]},
                 cv=5, scoring='accuracy'
             )
         else:
