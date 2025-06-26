@@ -57,7 +57,7 @@ class ClassificationAlgorithms:
     def svm_without_kernel(self, train_X, train_y, test_X, C=1, tol=1e-3, max_iter=1000, gridsearch=True):
         # GridSearchCV tuning
         if gridsearch:
-            svm = GridSearchCV(LinearSVC(), {"max_iter": [1000, 2000, 3000,  4000, 5000],
+            svm = GridSearchCV(LinearSVC(), {"max_iter": [1000, 2000, 3000],
                                               "tol": [1e-3, 1e-4],
                                               "C": [5, 10, 15, 20, 25]},
                                               cv=5, scoring="accuracy")
@@ -70,7 +70,9 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             svm = svm.best_estimator_
-            print(f"{' ' * 15}Best parameters: {svm.get_params()}")
+            print(f"Best max_iter: {svm.get_params()['max_iter']}")
+            print(f"Best tol: {svm.get_params()['tol']}")
+            print(f"Best C: {svm.get_params()['C']}")
 
         # Predictions
         pred_train = svm.predict(train_X)
@@ -136,6 +138,8 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             dtree = dtree.best_estimator_
+            print(f"Best min_samples_leaf: {dtree.get_params()['min_samples_leaf']}")
+            print(f"Best criterion: {dtree.get_params()['criterion']}")
 
         # Predictions
         pred_train = dtree.predict(train_X)
@@ -161,7 +165,7 @@ class ClassificationAlgorithms:
                 RandomForestClassifier(),
                 {
                     "min_samples_leaf": [2, 10, 50, 100, 200],
-                    "n_estimators": [10, 50, 100],
+                    "n_estimators": [10, 20, 50],
                     "criterion": ["gini", "entropy"]
                 },
                 cv=5, scoring="accuracy"
@@ -175,8 +179,10 @@ class ClassificationAlgorithms:
         # use the best hyperparameters
         if gridsearch:
             rf = rf.best_estimator_
-            print(f"{' ' * 15}Best parameters: {rf.get_params()}")        
-
+            print(f"Best n_estimators: {rf.get_params()['n_estimators']}")
+            print(f"Best min_samples_leaf: {rf.get_params()['min_samples_leaf']}")
+            print(f"Best criterion: {rf.get_params()['criterion']}")
+            
         # Predictions   
         pred_train = rf.predict(train_X)
         pred_test = rf.predict(test_X)
@@ -187,17 +193,17 @@ class ClassificationAlgorithms:
         if gridsearch:
             logreg = GridSearchCV(
                 LogisticRegression(solver='liblinear'),
-                {'C': [0.1, 1, 10]},
+                {'C': [0.1, 1, 5, 10]},
                 cv=5, scoring='accuracy'
             )
         else:
-            logreg = LogisticRegression(solver='liblinear', C=1)
+            logreg = LogisticRegression(solver='liblinear', C=5)
 
         logreg.fit(train_X, train_y)
 
         if gridsearch:
             logreg = logreg.best_estimator_
-            print(f"{' ' * 15}Best parameters: {logreg.get_params()}")
+            print(f"Best C: {logreg.get_params()['C']}")
 
         pred_train = logreg.predict(train_X)
         pred_test = logreg.predict(test_X)
