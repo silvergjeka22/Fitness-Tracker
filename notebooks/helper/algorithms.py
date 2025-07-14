@@ -130,25 +130,38 @@ class ClassificationAlgorithms:
         # GridSearchCV tuning
         if gridsearch:
             dtree = GridSearchCV(
-                DecisionTreeClassifier(),
-                {"min_samples_leaf": [35, 40, 45, 50, 55], "criterion": ["gini", "entropy"]},
+                DecisionTreeClassifier(random_state=42),
+                {
+                    "min_samples_leaf": [25, 35, 50],
+                    "criterion": ["gini", "entropy"],
+                    "max_depth": [3, 5, 10, None],
+                    "min_samples_split": [2, 5, 10]
+                },
                 cv=5, scoring="accuracy"
             )
         else:
-            dtree = DecisionTreeClassifier(min_samples_leaf=min_samples_leaf, criterion=criterion)
+            dtree = DecisionTreeClassifier(
+                min_samples_leaf=min_samples_leaf,
+                criterion=criterion,
+                max_depth=5,
+                min_samples_split=5,
+                random_state=42
+            )
 
-        # Fit the model
         dtree.fit(train_X, train_y)
 
-        # use the best hyperparameters
         if gridsearch:
             dtree = dtree.best_estimator_
-
-        # Predictions
+            print(f"Best min_samples_leaf: {dtree.get_params()['min_samples_leaf']}")
+            print(f"Best criterion: {dtree.get_params()['criterion']}")
+            print(f"Best max_depth: {dtree.get_params()['max_depth']}")
+            print(f"Best min_samples_split: {dtree.get_params()['min_samples_split']}")
+            
         pred_train = dtree.predict(train_X)
         pred_test = dtree.predict(test_X)
 
         return pred_train, pred_test, dtree
+
 
     def naive_bayes(self, train_X, train_y, test_X):
         # Create and fit the model
@@ -161,37 +174,45 @@ class ClassificationAlgorithms:
         
         return pred_train, pred_test, nb
 
-    def random_forest(self, train_X, train_y, test_X, n_estimators=10, min_samples_leaf=5, criterion="gini", gridsearch=True):
-        # GridSearchCV tuning
+    def random_forest(self, train_X, train_y, test_X, n_estimators=100, min_samples_leaf=10, criterion="gini", gridsearch=True):
         if gridsearch:
             rf = GridSearchCV(
-                RandomForestClassifier(),
+                RandomForestClassifier(random_state=42, oob_score=True),
                 {
-                    "min_samples_leaf": [2, 10, 50, 100, 200],
-                    "n_estimators": [10, 20, 50],
+                    "n_estimators": [50, 100],
+                    "min_samples_leaf": [5, 10, 25],
+                    "max_depth": [5, 10, 20, None],
+                    "max_features": ["sqrt", "log2"],
                     "criterion": ["gini", "entropy"]
                 },
-                cv=5, scoring="accuracy"
+                cv=5, scoring="accuracy", n_jobs=-1
             )
         else:
-            rf = RandomForestClassifier(n_estimators=n_estimators, min_samples_leaf=min_samples_leaf, criterion=criterion)
+            rf = RandomForestClassifier(
+                n_estimators=n_estimators,
+                min_samples_leaf=min_samples_leaf,
+                criterion=criterion,
+                max_depth=10,
+                max_features="sqrt",
+                random_state=42,
+                oob_score=True
+            )
 
-        # Fit the model
         rf.fit(train_X, train_y)
 
-        # use the best hyperparameters
         if gridsearch:
             rf = rf.best_estimator_
             print(f"Best n_estimators: {rf.get_params()['n_estimators']}")
             print(f"Best min_samples_leaf: {rf.get_params()['min_samples_leaf']}")
+            print(f"Best max_depth: {rf.get_params()['max_depth']}")
+            print(f"Best max_features: {rf.get_params()['max_features']}")
             print(f"Best criterion: {rf.get_params()['criterion']}")
-            
-        # Predictions   
         pred_train = rf.predict(train_X)
         pred_test = rf.predict(test_X)
-      
+
         return pred_train, pred_test, rf
     
+
     def logistic_regression(self, train_X, train_y, test_X, gridsearch=True):
         if gridsearch:
             logreg = GridSearchCV(
