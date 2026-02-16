@@ -9,12 +9,12 @@ import copy
 from sklearn.metrics import silhouette_score
 
 
-############### Outlier detection ####################
+# Outlier detection
 class OutlierDetection:
     def __init__(self):
         pass
 
-    def tune_dbscan(self, df, outliers_cols, eps_range=(0.1, 2.0, 0.1), min_samples_range=(5, 20)):
+    def tune_dbscan(self, df, outliers_cols, eps_range=(0.1, 1.8, 0.1), min_samples_range=(5, 20)):
         scaler = StandardScaler()
         df_scaled = df.copy()
         df_scaled[outliers_cols] = scaler.fit_transform(df[outliers_cols])
@@ -68,7 +68,7 @@ class OutlierDetection:
             else:
                 print(f'{col} is not normally distributed (p-value: {p})')
 
-############### Feature engineering ####################
+# Feature engineering
 
 class PrincipalComponentAnalysis:
 
@@ -117,7 +117,7 @@ class PrincipalComponentAnalysis:
 
         return data_table
 
-###### Filtering functions ######
+# Filtering functions
 class LowPassFilter:
         def low_pass_filter(self, data_table, col, sampling_frequency, cutoff_frequency, order=5, phase_shift=True):
             nyquist = 0.5 * sampling_frequency
@@ -127,7 +127,7 @@ class LowPassFilter:
             data_table[col + "_lowpass"] = filtered
             return data_table
         
-##### Temporal abstraction functions ####
+# Temporal abstraction functions
 class MeanTemporalAbstraction:
 
     def abstract_mean(self, data_table, cols, window_size):
