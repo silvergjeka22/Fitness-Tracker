@@ -14,7 +14,7 @@ class OutlierDetection:
     def __init__(self):
         pass
 
-    def tune_dbscan(self, df, outliers_cols, eps_range=(0.1, 1.8, 0.1), min_samples_range=(5, 20)):
+    def tune_dbscan(self, df, outliers_cols, eps_range=(0.4, 1.8, 0.1), min_samples_range=(5, 15)):
         scaler = StandardScaler()
         df_scaled = df.copy()
         df_scaled[outliers_cols] = scaler.fit_transform(df[outliers_cols])
@@ -135,4 +135,3 @@ class MeanTemporalAbstraction:
             new_col_name = f"{col}_temp_mean_ws_{window_size}"
             data_table[new_col_name] = data_table[col].rolling(window_size).mean()
         return data_table
-
